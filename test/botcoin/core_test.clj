@@ -13,25 +13,29 @@
 
 (deftest valid?-test
   (testing "Verifying signatures"
-    (is (valid? "my key" "my key:string to sign" ":string to sign"))
+    (is (valid? []))
+    (is (valid? [{:payee-pub-key "first recipient"
+                  :signature "foobar"}]))
+    (is (valid? [{:payee-pub-key "second recipient",
+                  :signature "first recipient:332913733"}
+                 {:payee-pub-key "first recipient",
+                  :signature "foobar"}]))
     (is (not (valid? "my key" "my key:bogus string" "string to sign")))
     (is (not (valid? "my key" "not my key:string to sign" "string to sign")))))
 
 (deftest transfer-test
   (testing "Transfering a new coin"
-    (is (= [{:payee-pub-key "bob key"
-             :signature "alice key:bob key/"}]
-           (transfer [] "bob key" (partial sign "alice key")))))
+    
+    (is (= [{:payee-pub-key "new owner key",
+             :signature "previous owner key:-1422918588"}]
+           (transfer [] {:symmetric-key "previous owner key"}
+                     {:symmetric-key "new owner key"}))))
   (testing "Transferring an existing coin"
-    (let [users {:alice {:name "Alice"
-                         :symmetric-key "alice's key"}
-                 :bob {:name "Bob"
-                       :symmetric-key "bob's key"}
-                 :charlie {:name "Charlie"
-                           :symmetric-key "charlie's key"}}
-          first-tran {:payee-pub-key "bob key"
-                      :signature "alice key:2029465041"}]
-      (is (= [{:payee-pub-key "charlie key",
-               :signature "bob key:charlie key/{:payee-pub-key \"bob key\", :signature \"alice key:2029465041\"}"}
-              {:payee-pub-key "bob key", :signature "alice key:2029465041"}]
-             (transfer [first-tran] (:bob users) (:charlie users)))))))
+    (is (= [{:payee-pub-key "second recipient",
+             :signature "first recipient:332913733"}
+            {:payee-pub-key "first recipient",
+             :signature "foobar"}]
+         (transfer [{:payee-pub-key "first recipient"
+                     :signature "foobar"}]
+                   {:symmetric-key "first recipient"}
+                   {:symmetric-key "second recipient"})))))
