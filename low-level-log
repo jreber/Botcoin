@@ -1,0 +1,28 @@
+18:41, 28 Jan 2016
+My valid-tran? function fails to handle double spending of coin. I am not sure
+how to detect that. My current approach is to search inside all previous blocks
+to ensure that the seller is actually the owner of record for the given coin.
+This confirmation is important because a seller could otherwise fabricate an
+internally consistent but fake coin, but this confirmation does not detect
+double spending. I somehow ned to detect if a seller-of-record subsequently
+transferred the coin before the latest attempted transaction.
+
+I could tag every coin with an id that is part of the coin, but that seems
+anathema to what Bitcoin wants to accomplish, and tagging is mentinoed nowhere
+in the Bitcoin paper. Alternatively, new coins have no "prev hash" value, so a
+random number could be generated to fill that role and also play the role of
+coin id.
+
+19:24, 28 Jan 2016
+The more nodes there are in the system, the greater the likelihood that any one
+node's work will be upended by a competing node publishing a completed block
+first. This also means that the deck is stacked in favor of whoever can muster
+the most powerful fleet. Is this a problem, and does it happen in real life?
+
+19:55, 28 Jan 2016
+I realized that there is no way buyers could get away with using fradulently
+claimed coins: A seller will reject any coin that was not properly assigned to
+the buyer in a transaction verified by the proof-of-work blockchain. This is why
+the paper could so quickly dismiss that possibility. That means that the only
+possible fraudulent use of a coin is double-spending it (which I still have not
+solved).
